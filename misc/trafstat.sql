@@ -1,0 +1,21 @@
+CREATE TABLE `trafstat` (
+  `protocol` tinyint(3) unsigned DEFAULT '0',
+  `local_ip` int(10) unsigned DEFAULT '0',
+  `remote_ip` int(10) unsigned DEFAULT '0',
+  `local_port` mediumint(8) unsigned DEFAULT '0',
+  `remote_port` mediumint(8) unsigned DEFAULT '0',
+  `local_pkt` int(10) unsigned DEFAULT '0',
+  `remote_pkt` int(10) unsigned DEFAULT '0',
+  `local_data` bigint(20) unsigned DEFAULT '0',
+  `remote_data` bigint(20) unsigned DEFAULT '0',
+  `syn_count` int(10) unsigned NOT NULL DEFAULT '0',
+  `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `_traf_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`_traf_id`),
+  KEY `protocol` (`protocol`),
+  KEY `local_ip` (`local_ip`),
+  KEY `remote_ip` (`remote_ip`),
+  KEY `local_port` (`local_port`),
+  KEY `remote_port` (`remote_port`),
+  KEY `timestamp` (`timestamp`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT='Traffic statistic';
