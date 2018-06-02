@@ -34,7 +34,7 @@ tar xzvf xt_TRAFSTAT-master.tar.gz
 - compile kernel module and netfilter shared library:
 
 ```
-cd xt_TRAFSTAT*
+cd xt_TRAFSTAT-master
 make install
 ```
 
