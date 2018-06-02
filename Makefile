@@ -30,7 +30,7 @@ uninstall: clean
 	@rmmod xt_TRAFSTAT &> /dev/null
 	@rm -f /usr/lib/xtables/libxt_TRAFSTAT.so &> /dev/null
 	@rm -f /usr/lib/x86_64-linux-gnu/xtables/libxt_TRAFSTAT.so &> /dev/null
-	@rm -f /lib/modules/$(shell uname -r)/extra/xt_TRAFSTAT.ko
+	@rm -f /lib/modules/$(shell uname -r)/net/netfilter/xt_TRAFSTAT.ko
 	@if ( lsmod | grep -i trafstat ) ; then \
 		printf '\n\e[5;31;40mTRAFSTAT module still loaded\e[m\n\n'; fi
 endif
