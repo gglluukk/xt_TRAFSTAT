@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #    FORMAT(COUNT(DISTINCT(t.local_ip + t.remote_ip)), 0) AS IPs, 
 
 if [ $1 ]; then

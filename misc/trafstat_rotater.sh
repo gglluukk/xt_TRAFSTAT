@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 SQLEXEC='mysql --defaults-file=/root/.my.cnf --database=trafstat -e '
 
