@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 SQLEXEC='mysql --defaults-file=/root/.my.cnf --database=trafstat -e '
 TIMEFORMAT='%3R'
@@ -6,7 +6,7 @@ TIMEFORMAT='%3R'
 
 function create_table {
     $SQLEXEC "
-        CREATE TABLE trafstat_${1} (
+        CREATE TABLE IF NOT EXISTS trafstat_${1} (
           _traf_id int(10) unsigned NOT NULL AUTO_INCREMENT,
           protocol tinyint(3) unsigned DEFAULT '0',
           local_ip int(10) unsigned DEFAULT '0',
@@ -27,19 +27,20 @@ function create_table {
           KEY remote_port (remote_port),
           KEY timestamp (timestamp)
         ) ENGINE=MyISAM
-    " &> /dev/null
+    "
 }
 
 
 for i in /proc/trafstat/* ; do
-    table=`basename $i`
+    file=`basename $i`
+    table=`echo $file | tr '.' '_'`
     
     create_table $table
     
-    TMPFILE="/tmp/trafstat_${table}.`date +%m-%d_%H-%M`"
+    TMPFILE="/tmp/trafstat_${file}"
 
-    (echo -n "query run "  
-     time $SQLEXEC "LOAD DATA INFILE '/proc/trafstat/${table}'
+    (echo -n "`date +%m-%d_%H-%M` query run "  
+     time $SQLEXEC "LOAD DATA INFILE '/proc/trafstat/${file}'
         INTO TABLE trafstat_${table} FIELDS TERMINATED BY ','" ) &>> $TMPFILE
 
 done

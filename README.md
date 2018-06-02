@@ -12,13 +12,14 @@
 - for Debian run:
 
 ```
-apt-get --yes install linux-headers-`uname -r` iptables-dev
+apt-get --yes install linux-headers-`uname -r` \
+    iptables-dev iptables-persistent net-tools
 ```
 
-### get, build and install trafstat 
+### get, build and install xt_TRAFSTAT 
 
 
-- download trafstat:
+- download xt_TRAFSTAT:
 
 ```
 wget http://gitlab.fbsvc.bz/gluker/xt_TRAFSTAT/-/archive/master/xt_TRAFSTAT-master.tar.gz
@@ -42,7 +43,7 @@ make install
 ## configure
 
 
-### install and configure mysql as datastorage for trafstat
+### install and configure mysql as data storage 
 
 - set mysql password and preconfigure package
 
@@ -102,25 +103,6 @@ EOF
 mysql --defaults-file=/root/.my.cnf --database=mysql --execute "CREATE DATABASE trafstat"
 ```
 
-### create rule to count traffic to host itself
-
-```
-for net in 142.0.198.24/29 173.0.146.0/24 173.0.153.0/24 ; do
-  iptables -I INPUT -d $net -j TRAFSTAT --local-net $net \
-    --local-tcp-ports 22,53,80,5665 --local-udp-ports none --max-entries 2000
-  iptables -I OUTPUT -s $net -j TRAFSTAT --local-net $net \
-    --local-tcp-ports 22,53,80,5665 --local-udp-ports none --max-entries 2000
-done
-```
-
-### checking ports
-
-```
-netstat -apn --inet | grep LIST | grep '0.0.0.0:[0-9]'
-netstat -apn --inet | grep LIST | grep '0.0.0.0:[0-9]' | \
-awk '{ print $4; }' | sed -e 's|0.0.0.0:||' | sort -n | tr '\n' ','
-```
-
 
 ### preparing crontab task to collect statistics every 5 minutes
 
@@ -146,6 +128,67 @@ cp misc/trafstat_rotater.sh /etc/cron.weekly/
 cp misc/trafstat_show.sh /usr/local/bin/
 ```
 
+
+## enabling statistics
+
+### set host
+
+- finding out our IP-address or set it by your own:
+
+```
+HOST_IP=`ip route get 8.8.8.8 | \
+head -1 | awk '{ print $7; }'`
+
+echo "Host IP-address: $HOST_IP"
+```
+
+### set ports
+
+- set TCP-ports being listened:
+
+```
+TCP_PORTS=`netstat -apn --inet | \
+grep LIST | grep ^tcp | grep '0.0.0.0:[0-9]' | \
+awk '{ print $4; }' | sed -e 's|0.0.0.0:||' | \
+sort -n | tr '\n' ',' | sed -e 's|,$||'`
+
+if ! echo $TCP_PORTS | grep [0-9] ; then \
+TCP_PORTS="none" ; fi
+
+```
+
+- set UDP-ports being listened:
+
+```
+UDP_PORTS=`netstat -apn --inet | \
+grep LIST | grep ^udp | grep '0.0.0.0:[0-9]' | \
+awk '{ print $4; }' | sed -e 's|0.0.0.0:||' | \
+sort -n | tr '\n' ',' | sed -e 's|,$||'`
+
+if ! echo $UDP_PORTS | grep [0-9] ; then \
+UDP_PORTS="none" ; fi
+```
+
+### set iptables' xt_TRAFSTAT rules
+
+- for traffic in @INPUT:
+
+```
+iptables -I INPUT -d $HOST_IP -j TRAFSTAT \
+--local-net $HOST_IP \
+--local-tcp-ports $TCP_PORTS \
+--local-udp-ports $UDP_PORTS
+```
+
+- for traffic out @OUTPUT:
+
+```
+iptables -I OUTPUT -s $HOST_IP -j TRAFSTAT \
+--local-net $HOST_IP \
+--local-tcp-ports $TCP_PORTS \
+--local-udp-ports $UDP_PORTS
+```
+
 ### backup old firewall rules and saving new 
 
 ```
@@ -153,5 +196,3 @@ cp -fT --backup=t /etc/iptables/rules.v4 \
     /etc/iptables/rules.v4-`date +%Y-%m-%d_%H-%M`
 iptables-save > /etc/iptables/rules.v4
 ```
-
-
