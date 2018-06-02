@@ -8,15 +8,19 @@ PWD := $(shell pwd)
 CC := gcc -Wall
 
 default:
-	$(MAKE) -Wall -C $(KERNELDIR) M=$(PWD) modules
-	$(CC) $(EXTRA_CFLAGS) -fPIC -s -shared -o libxt_TRAFSTAT.so libxt_TRAFSTAT.c
+	$(MAKE) -C $(KERNELDIR) M=$(PWD) modules
+	$(CC) $(EXTRA_CFLAGS) -fPIC -s -shared -o libxt_TRAFSTAT.so \
+                       libxt_TRAFSTAT.c
 
 clean:
 	@rm -rf *.o *.ko *.mod.c Module.symvers *.mod.gcno modules.order \
 		*.so .*.cmd .tmp*
 
 install: uninstall default 
-	cp -f libxt_TRAFSTAT.so /usr/lib/xtables/
+	if [ -d /usr/lib/xtables/ ] ; then \
+		cp -f libxt_TRAFSTAT.so /usr/lib/xtables/ ; fi
+	if [ -d /usr/lib/x86_64-linux-gnu/xtables/ ] ; then \
+		cp -f libxt_TRAFSTAT.so /usr/lib/x86_64-linux-gnu/xtables/ ; fi
 	cp -f xt_TRAFSTAT.ko \
 		/lib/modules/$(shell uname -r)/kernel/net/netfilter/
 	if ( ! modinfo xt_TRAFSTAT &> /dev/null ) ; then \
