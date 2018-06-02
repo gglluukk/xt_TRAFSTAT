@@ -12,7 +12,7 @@
 - for Debian run:
 
 ```
-apt-get install linux-headers-`uname -r` iptables-dev
+apt-get --yes install linux-headers-`uname -r` iptables-dev
 ```
 
 ### get, build and install trafstat 
@@ -58,7 +58,7 @@ debconf-set-selections <<< \
 - install mysql with presets
 
 ```
-apt-get install mysql-server
+apt-get --yes install mysql-server
 ```
 
 - add to autostart
@@ -99,7 +99,7 @@ EOF
 - create database
 
 ```
-mysql --defaults-file=/root/.my.cnf --execute "CREATE DATABASE trafstat"
+mysql --defaults-file=/root/.my.cnf --database=mysql --execute "CREATE DATABASE trafstat"
 ```
 
 ### create rule to count traffic to host itself
@@ -153,3 +153,5 @@ cp -fT --backup=t /etc/iptables/rules.v4 \
     /etc/iptables/rules.v4-`date +%Y-%m-%d_%H-%M`
 iptables-save > /etc/iptables/rules.v4
 ```
+
+
