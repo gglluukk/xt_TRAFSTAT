@@ -1,5 +1,6 @@
 #define pr_fmt(fmt) KBUILD_MODNAME ", %s: " fmt, __func__ 
 
+#include <linux/version.h>
 #include <linux/module.h>
 #include <linux/if_ether.h>
 #include <linux/ip.h>
@@ -13,6 +14,10 @@
 #include <linux/netfilter/x_tables.h>
 #include <linux/proc_fs.h>
 #include <linux/seq_file.h>
+#include <linux/dcache.h>
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,11,0)
+#include <linux/sched/types.h>
+#endif
 #include "xt_TRAFSTAT.h"
 
 #define TRAFSTAT_PROC	    "trafstat"
@@ -27,6 +32,7 @@ struct traf_thread {
 
         bool    entries_warn;
         __u8    bitmask, fast_aggregate;
+        char    config_net[32];
         __u32   local_net, traf_policy, min_pkt_spoof;
         __u32   max_entries;
         __u8    dump_prio;
@@ -299,8 +305,9 @@ static inline void process_packet(net_options *net_opts,
                 if (atomic_add_return(1, &tt->entries) >= tt->max_entries) {
                         if (!tt->entries_warn) {
                                 tt->entries_warn = true;
-                                pr_warn("local net: %u, storages exceed %u " 
-                                   "entries\n", tt->local_net, tt->max_entries);
+                                pr_warn("local net: %s, storages exceed %u " 
+                                    "entries\n", tt->config_net, 
+                                                 tt->max_entries);
                         }
                         atomic64_inc(&tt->packets_lost);
                         atomic_dec(&tt->entries);
@@ -309,8 +316,8 @@ static inline void process_packet(net_options *net_opts,
 
                 new = kmem_cache_alloc(tt->traf_cache, KMALLOC_FLAGS);
                 if (unlikely(!new)) {
-                        pr_warn("local net: %u, error in kmem_cache_alloc\n",
-                                tt->local_net);
+                        pr_warn("local net: %s, error in kmem_cache_alloc\n",
+                                tt->config_net);
                         atomic64_inc(&tt->packets_lost);
                         goto unlocks;
                 }
@@ -331,8 +338,8 @@ static inline void process_packet(net_options *net_opts,
 		}
 
                 if (unlikely(!storage_insert(&tt->storage[storage_id], new))) {
-			pr_warn("local net: %u, error in storage_insert\n",
-                                tt->local_net);
+			pr_warn("local net: %s, error in storage_insert\n",
+                                tt->config_net);
                         atomic64_inc(&tt->packets_lost);
                         kmem_cache_free(tt->traf_cache, new);
                         atomic_dec(&tt->entries);
@@ -408,12 +415,12 @@ static unsigned int trafstat_tg(struct sk_buff *skb,
 	return tt->traf_policy;
 }
 
-static inline struct traf_thread *tt_by_local_net(__u32 local_net)
+static inline struct traf_thread *tt_by_config_net(char *config_net)
 {
         struct traf_thread *tt;
 
         list_for_each_entry(tt, &tt_list, list)
-                if (tt->local_net == local_net)
+                if (!strcmp(tt->config_net, config_net))
                         return tt;
 
         return NULL;
@@ -630,10 +637,10 @@ static int trafstat_seq_open(struct inode *inode, struct file *file)
 {
         struct traf_thread *tt;
         struct traf_helper *th;
-        char *tmp, *pathname, *tid;
+        char *tmp, *pathname, *config_net;
         struct path path;
         struct seq_file *s;
-        __u32 local_net;
+        //__u32 local_net;
         int ret;
 
         ret = seq_open(file, &trafstat_seq_ops);
@@ -663,16 +670,18 @@ static int trafstat_seq_open(struct inode *inode, struct file *file)
                 goto err2;
         }
 
-        tid = strrchr(pathname, '/') + 1;
+        config_net = strrchr(pathname, '/') + 1;
+        /*
         ret = kstrtou32(tid, 0, &local_net);
         if (ret < 0) {
                 pr_err("error in kstrtou32\n");
                 goto err2;
-        }
+        }*/
 
-        tt = tt_by_local_net(local_net);
+        tt = tt_by_config_net(config_net);
         if (!tt) {
-                pr_err("local net: %u, error in tt_by_local_net\n", local_net);
+                pr_err("local net: %s, error in tt_by_config_net\n", 
+                    config_net);
                 goto err2;
         }
 
@@ -682,7 +691,7 @@ static int trafstat_seq_open(struct inode *inode, struct file *file)
         }
 
         if (!mutex_trylock(&tt->proc_lock)) {
-                pr_err("local net: %u, proc file is busy\n", local_net);
+                pr_err("local net: %s, proc file is busy\n", config_net);
                 goto err2;
         }
 
@@ -694,15 +703,15 @@ static int trafstat_seq_open(struct inode *inode, struct file *file)
         s = file->private_data;
         s->private = kzalloc(sizeof(struct traf_helper), GFP_KERNEL);
         if (!s->private) {
-                pr_err("local net: %u, error in kzalloc\n", local_net);
+                pr_err("local net: %s, error in kzalloc\n", config_net);
                 goto err2;
         }
 
         th = s->private;
         th->tt = tt;
 
-        pr_info("local net: %u; passed/lost packets: %lu/%lu, cpu: %u\n",
-	                tt->local_net, atomic64_read(&tt->packets_pass), 
+        pr_info("local net: %s; passed/lost packets: %lu/%lu, cpu: %u\n",
+	                tt->config_net, atomic64_read(&tt->packets_pass), 
                         atomic64_read(&tt->packets_lost), 
                         raw_smp_processor_id());
 
@@ -773,7 +782,7 @@ static struct traf_thread *create_tt(struct xt_TRAFSTAT_info *info)
         }
 
         memset(&tmp, 0, sizeof(tmp));
-        snprintf(tmp, sizeof(tmp) - 1, "trafstat_%u", info->local_net);
+        snprintf(tmp, sizeof(tmp) - 1, "trafstat_%s", info->config_net);
 
         tt->traf_cache = kmem_cache_create(tmp, sizeof(traf_stat), 0, 
                                         SLAB_RECLAIM_ACCOUNT, NULL);
@@ -789,6 +798,7 @@ static struct traf_thread *create_tt(struct xt_TRAFSTAT_info *info)
 
         mutex_init(&tt->proc_lock);
 
+        memcpy(tt->config_net, info->config_net, sizeof(tt->config_net));
         tt->rb_ports        = RB_ROOT;
         tt->spoof           = RB_ROOT;
         tt->refs            = 1;
@@ -811,7 +821,8 @@ static struct traf_thread *create_tt(struct xt_TRAFSTAT_info *info)
                 goto err3;
 
         memset(&tmp, 0, sizeof(tmp));
-        snprintf(tmp, sizeof(tmp) - 1, "%s/%u", TRAFSTAT_PROC, info->local_net);
+        snprintf(tmp, sizeof(tmp) - 1, "%s/%s", 
+            TRAFSTAT_PROC, info->config_net);
         if (!proc_create(tmp, 0, NULL, &trafstat_file_ops)) {
                 pr_err("error in proc_create\n");
                 goto err3;
@@ -838,14 +849,14 @@ static int trafstat_tg_check(const struct xt_tgchk_param *par)
 
         mutex_lock(&tt_list_lock);
 
-        tt = tt_by_local_net(info->local_net);
+        tt = tt_by_config_net((char *)&info->config_net);
         if (tt) {
                 tt->refs++;
         } else {
                 tt = create_tt(info);
                 if (!tt) {
-                        pr_err("local net: %u, error in create_tt\n",
-                                        info->local_net);
+                        pr_err("local net: %s, error in create_tt\n",
+                                        info->config_net);
                         mutex_unlock(&tt_list_lock);
                         return -ENOMEM;
                 }
@@ -859,11 +870,11 @@ static int trafstat_tg_check(const struct xt_tgchk_param *par)
 
 static void destroy_tt(struct traf_thread *tt)
 {
-        char tmp[32];
+        char tmp[64];
 	int i;
 
         memset(&tmp, 0, sizeof(tmp));
-        snprintf(tmp, sizeof(tmp) - 1, "%s/%u", TRAFSTAT_PROC, tt->local_net);
+        snprintf(tmp, sizeof(tmp) - 1, "%s/%s", TRAFSTAT_PROC, tt->config_net);
         remove_proc_entry(tmp, NULL);
 
         ports_free(&tt->rb_ports);
@@ -889,7 +900,7 @@ static void trafstat_tg_destroy(const struct xt_tgdtor_param *par)
         struct traf_thread *tt = info->tt;
 
         if (!tt) {
-                pr_err("local net: %u, no traf_thread\n", info->local_net);
+                pr_err("local net: %s, no traf_thread\n", info->config_net);
                 return;
         }
 
@@ -949,4 +960,4 @@ MODULE_AUTHOR("gglluukk");
 MODULE_DESCRIPTION("Xtables: traffic statistics");
 MODULE_ALIAS("xt_TRAFSTAT");
 MODULE_ALIAS("ipt_TRAFSTAT");
-MODULE_VERSION("0.20");
+MODULE_VERSION("0.22");

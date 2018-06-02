@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <netdb.h>
+#include <sys/socket.h>
 #include <xtables.h>
 #include <linux/types.h>
 #include <linux/netfilter_ipv4/ip_tables.h>
@@ -52,8 +53,7 @@ static const struct xt_option_entry TRAFSTAT_opts[] = {
 	{.name = "dump-priority",       .id = O_DUMP_PRIO,
 	 .type = XTTYPE_UINT32},
 	XTOPT_TABLEEND
-}
-;
+};
 
 static void TRAFSTAT_help(void)
 {
@@ -156,10 +156,14 @@ static void TRAFSTAT_parse(struct xt_option_call *cb)
         xtables_option_parse(cb);
 	switch (cb->entry->id) {
 	case O_LOCAL_NET:
-		memcpy(&info->addr, &cb->val.haddr, sizeof(cb->val.haddr));
+                memcpy(&info->addr, &cb->val.haddr, sizeof(cb->val.haddr));
 		memcpy(&info->mask, &cb->val.hmask, sizeof(cb->val.hmask));
 		info->bitmask = 32 - mask2bit(info->mask.ip);
 		info->local_net = info->addr.ip << info->bitmask;
+                snprintf(info->config_net, sizeof(info->config_net), "%s_%s",
+                    xtables_ipaddr_to_numeric(&info->addr.in), 
+                    (!info->bitmask) ? "32" : 
+                        xtables_ipmask_to_numeric(&info->mask.in)+1);
 		break;
 	case O_LOCAL_TCP_PORTS:
 		parse_multi_ports(cb->arg, info->local_tcp_ports, 

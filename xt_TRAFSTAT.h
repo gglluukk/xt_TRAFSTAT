@@ -62,7 +62,8 @@ struct port_search_helper {
 struct xt_TRAFSTAT_info {
 	union nf_inet_addr addr, mask;
 	__u8  bitmask;
-	__u32 local_net;
+	char  config_net[32];
+        __u32 local_net;
 	__u16 local_tcp_ports[XT_TRAFSTAT_PORTS];
 	__u16 local_udp_ports[XT_TRAFSTAT_PORTS];
 	__u16 remote_tcp_ports[XT_TRAFSTAT_PORTS];
