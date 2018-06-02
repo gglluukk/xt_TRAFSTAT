@@ -43,7 +43,7 @@ FROM
 WHERE
     t.protocol = p.protocol_num
 GROUP BY
-    t.timestamp,
+    t.timestamp DESC,
     t.protocol
 $LIMIT
 "
