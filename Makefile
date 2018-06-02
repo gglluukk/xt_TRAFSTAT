@@ -19,6 +19,8 @@ clean:
 install: uninstall default 
 	if [ -d /usr/lib/xtables/ ] ; then \
 		cp -f libxt_TRAFSTAT.so /usr/lib/xtables/ ; fi
+	if [ -d /lib/xtables/ ] ; then \
+	    	cp -f libxt_TRAFSTAT.so /lib/xtables/ ; fi
 	if [ -d /usr/lib/x86_64-linux-gnu/xtables/ ] ; then \
 		cp -f libxt_TRAFSTAT.so /usr/lib/x86_64-linux-gnu/xtables/ ; fi
 	cp -f xt_TRAFSTAT.ko \
@@ -29,6 +31,7 @@ install: uninstall default
 uninstall: clean 
 	@rmmod xt_TRAFSTAT &> /dev/null
 	@rm -f /usr/lib/xtables/libxt_TRAFSTAT.so &> /dev/null
+	@rm -f /lib/xtables/libxt_TRAFSTAT.so &> /dev/null
 	@rm -f /usr/lib/x86_64-linux-gnu/xtables/libxt_TRAFSTAT.so &> /dev/null
 	@rm -f /lib/modules/$(shell uname -r)/net/netfilter/xt_TRAFSTAT.ko
 	@if ( lsmod | grep -i trafstat ) ; then \
