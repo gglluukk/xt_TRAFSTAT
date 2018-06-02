@@ -112,7 +112,7 @@ mysql --defaults-file=/root/.my.cnf --database=mysql --execute "CREATE DATABASE 
 - create table with protocols
 
 ```
-mysql --defaults-file=/root/.my.cnf --database=mysql < misc/protocols.sql 
+mysql --defaults-file=/root/.my.cnf --database=trafstat < misc/protocols.sql
 ```
 
 
