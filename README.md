@@ -109,6 +109,13 @@ EOF
 mysql --defaults-file=/root/.my.cnf --database=mysql --execute "CREATE DATABASE trafstat"
 ```
 
+- create table with protocols
+
+```
+mysql --defaults-file=/root/.my.cnf --database=mysql < misc/protocols.sql 
+```
+
+
 
 ### preparing crontab task to collect statistics every 5 minutes
 
