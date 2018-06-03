@@ -184,7 +184,7 @@ UDP_PORTS="none" ; fi
 
 ### set iptables' xt_TRAFSTAT rules
 
-- **for traffic in @INPUT:**
+- **incoming traffic to host:**
 
 ```
 iptables -I INPUT -d $HOST_IP -j TRAFSTAT \
@@ -193,7 +193,7 @@ iptables -I INPUT -d $HOST_IP -j TRAFSTAT \
 --local-udp-ports $UDP_PORTS
 ```
 
-- **for traffic out @OUTPUT:**
+- **outgoing traffic from host:**
 
 ```
 iptables -I OUTPUT -s $HOST_IP -j TRAFSTAT \
@@ -219,7 +219,7 @@ iptables-save > /etc/iptables/rules.v4
 
 ### collect data
 
-- **ingress traffic to host:**
+- **incoming traffic to host:**
 
 IPTables' rule in `INPUT` chain of filter table with **destination** equals to IP-range of host, assuming your IP-address/range is A.B.C.D/X: 
 
@@ -227,7 +227,7 @@ IPTables' rule in `INPUT` chain of filter table with **destination** equals to I
 iptables -I INPUT -d A.B.C.D/X -j TRAFSTAT --local-net A.B.C.D/X
 ```
 
-- **egress traffic from host:**
+- **outgoing traffic from host:**
 
 IPTables' rule in `OUTPUT` chain of filter table with **source** equals to IP-range of host, assuming your IP-address/range is A.B.C.D/X: 
 
@@ -235,7 +235,7 @@ IPTables' rule in `OUTPUT` chain of filter table with **source** equals to IP-ra
 iptables -I OUTPUT -s A.B.C.D/X -j TRAFSTAT --local-net A.B.C.D/X
 ```
 
-- **NAT traffic from WAN to LAN:**
+- **incoming NAT traffic from WAN to LAN:**
 
 IPTables' rule in `FORWARD` chain of filter table with **destination** equals to LAN's IP-range, assuming LAN IP-range is A.B.C.D/X: 
 
@@ -243,7 +243,7 @@ IPTables' rule in `FORWARD` chain of filter table with **destination** equals to
 iptables -I FORWARD -d A.B.C.D/X -j TRAFSTAT --local-net A.B.C.D/X
 ```
 
-- **NAT traffic from LAN to WAN:**
+- **outgoing NAT traffic from LAN to WAN:**
 
 IPTables' rule in `FORWARD` chain of filter table with **source** equals to LAN's IP-range, assuming LAN IP-range is A.B.C.D/X: 
 
