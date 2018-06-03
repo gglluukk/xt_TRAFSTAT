@@ -9,7 +9,7 @@
 
 ### install needed packages
 
-- for Debian run:
+- **for Debian run:**
 
 ```
 echo iptables-persistent iptables-persistent/autosave_v4 boolean true | \
@@ -25,20 +25,20 @@ apt-get --yes install linux-headers-`uname -r` \
 ### get, build and install xt_TRAFSTAT 
 
 
-- download xt_TRAFSTAT:
+- **download xt_TRAFSTAT:**
 
 ```
 wget http://gitlab.fbsvc.bz/gluker/xt_TRAFSTAT/-/archive/master/xt_TRAFSTAT-master.tar.gz
 ```
 
-- unpack sources:
+- **unpack sources:**
 
 ```
 tar xzvf xt_TRAFSTAT-master.tar.gz 
 
 ```
 
-- compile kernel module and netfilter shared library:
+- **compile kernel module and netfilter shared library:**
 
 ```
 cd xt_TRAFSTAT-master
@@ -51,7 +51,7 @@ make install
 
 ### install and configure mysql as data storage 
 
-- set mysql password and preconfigure package
+- **set mysql password and preconfigure package:**
 
 ```
 MYSQL_ROOT_PASSWORD="super-pass"
@@ -62,20 +62,20 @@ debconf-set-selections <<< \
 
 ```
 
-- install mysql with presets
+- **install mysql with presets:**
 
 ```
 apt-get --yes install mysql-server
 ```
 
-- add to autostart
+- **add to autostart:**
 
 ```
 systemctl enable mysql
 
 ```
 
-- allow LOAD DATA INFILE
+- **allow `LOAD DATA INFILE`:**
 
 ```
 cat >> /etc/mysql/my.cnf << EOF
@@ -84,13 +84,13 @@ secure_file_priv = ""
 EOF
 ```
 
-- apply changes
+- **apply changes:**
 
 ```
 service mysql restart
 ```
 
-- create client config needed by scripts
+- **create client config needed by scripts:**
 
 ```
 cat > /root/.my.cnf << EOF
@@ -103,13 +103,13 @@ prompt 	    = "\u@\h \d> "
 EOF
 ```
 
-- create database
+- **create database:**
 
 ```
 mysql --defaults-file=/root/.my.cnf --database=mysql --execute "CREATE DATABASE trafstat"
 ```
 
-- create table with protocols
+- **create table `protocols`:**
 
 ```
 mysql --defaults-file=/root/.my.cnf --database=trafstat < misc/protocols.sql
@@ -146,7 +146,7 @@ cp misc/trafstat_show.sh /usr/local/bin/
 
 ### set host
 
-- finding out our IP-address or set it by your own:
+- **finding out our IP-address or set it by your own:**
 
 ```
 HOST_IP=`ip route get 8.8.8.8 | \
@@ -157,7 +157,7 @@ echo "Host IP-address: $HOST_IP"
 
 ### set ports
 
-- set TCP-ports being listened:
+- **set TCP-ports being listened:**
 
 ```
 TCP_PORTS=`netstat -apn --inet | \
@@ -170,7 +170,7 @@ TCP_PORTS="none" ; fi
 
 ```
 
-- set UDP-ports being listened:
+- **set UDP-ports being listened:**
 
 ```
 UDP_PORTS=`netstat -apn --inet | \
@@ -184,7 +184,7 @@ UDP_PORTS="none" ; fi
 
 ### set iptables' xt_TRAFSTAT rules
 
-- for traffic in @INPUT:
+- **for traffic in @INPUT:**
 
 ```
 iptables -I INPUT -d $HOST_IP -j TRAFSTAT \
@@ -193,7 +193,7 @@ iptables -I INPUT -d $HOST_IP -j TRAFSTAT \
 --local-udp-ports $UDP_PORTS
 ```
 
-- for traffic out @OUTPUT:
+- **for traffic out @OUTPUT:**
 
 ```
 iptables -I OUTPUT -s $HOST_IP -j TRAFSTAT \
@@ -209,3 +209,98 @@ cp -fT --backup=t /etc/iptables/rules.v4 \
     /etc/iptables/rules.v4-`date +%Y-%m-%d_%H-%M`
 iptables-save > /etc/iptables/rules.v4
 ```
+
+
+## how it works
+
+### read list of options
+
+`iptables -j TRAFSTAT -h`
+
+### collect data
+
+- **ingress traffic to host:**
+
+IPTables' rule in `INPUT` chain of filter table with **destination** equals to IP-range of host, assuming your IP-address/range is A.B.C.D/X: 
+
+```
+iptables -I INPUT -d A.B.C.D/X -j TRAFSTAT --local-net A.B.C.D/X
+```
+
+- **egress traffic from host:**
+
+IPTables' rule in `OUTPUT` chain of filter table with **source** equals to IP-range of host, assuming your IP-address/range is A.B.C.D/X: 
+
+```
+iptables -I OUTPUT -s A.B.C.D/X -j TRAFSTAT --local-net A.B.C.D/X
+```
+
+- **NAT traffic from WAN to LAN:**
+
+IPTables' rule in `FORWARD` chain of filter table with **destination** equals to LAN's IP-range, assuming LAN IP-range is A.B.C.D/X: 
+
+```
+iptables -I FORWARD -d A.B.C.D/X -j TRAFSTAT --local-net A.B.C.D/X
+```
+
+- **NAT traffic from LAN to WAN:**
+
+IPTables' rule in `FORWARD` chain of filter table with **source** equals to LAN's IP-range, assuming LAN IP-range is A.B.C.D/X: 
+
+```
+iptables -I FORWARD -s A.B.C.D/X -j TRAFSTAT --local-net A.B.C.D/X
+```
+
+- **specify ports:**
+
+By default xt_TRAFSTAT saves statistics by IP protocols, not by ports. You could define what specific by port(s) statistics you need by using options:
+
+```
+  --local-tcp-ports {all|none|port[,port,port]}
+    statistics on all, none* or any 32 local TCP ports
+  --local-udp-ports {all|none|port[,port,port]}
+    statistics on all, none* or any 32 local UDP ports
+  --remote-tcp-ports {all|none|port[,port,port]}
+    statistics on all, none* or any 32 remote TCP ports
+  --remote-udp-ports {all|none|port[,port,port]}
+    statistics on all, none* or any 32 remote UDP ports
+```
+
+If you specify `all` for ports' option statistics will carry ports' number for all ports. If ports is `none` or port isn't in specified list it will be 0.
+
+
+### read statistics
+
+- **statistics storage:**
+ 
+xt_TRAFSTAT creates special `/proc/trafstat/` entry with filename related to IP-range defined by `--local-net` option, assuming IP-range is A.B.C.D/X:
+
+```
+/proc/trafstat/A.B.C.D_X
+```
+
+- **file format:**
+
+File format is CSV (Comma-Separated Values) ready to be injected into database in form, example:
+
+```
+0,17,3232235891,3232235777,123,0,6,7,351,660,0
+
+where:
+0             - id always 0, for AUTOINCREMENT PRIMARY KEY compatibility
+17            - protocol id
+3232235891    - local IP-address
+3232235777    - remote IP-address
+123           - local port (see ports for UDP/TCP)
+0             - remote port (see ports for UDP/TCP)
+6             - local packets' count
+7             - remote packets' count
+351           - local bytes' count
+660           - remote bytes' count
+0             - TCP packets with SYN-flag count 
+```
+
+- **read storage:**
+
+You can read storage in `/proc/trafstat/` in any time's interval. As soon as you read it statistics in storage is nulled.
+
