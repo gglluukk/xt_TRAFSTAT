@@ -132,7 +132,7 @@ EOF
 mkdir /var/trafstat/
 chmod 770 /var/trafstat/
 chown mysql:mysql /var/trafstat/
-cp misc/trafstat_rotater.sh /etc/cron.weekly/
+cp misc/trafstat_rotater /etc/cron.weekly/
 ```
 
 ### installing script showing common statistics
@@ -146,7 +146,7 @@ cp misc/trafstat_show.sh /usr/local/bin/
 
 ### set host
 
-- **finding out our IP-address or set it by your own:**
+- **finding out our IP-address or set HOST_IP manually:**
 
 ```
 HOST_IP=`ip route get 8.8.8.8 | \
