@@ -13,23 +13,23 @@ default:
                        libxt_TRAFSTAT.c
 
 clean:
-	@rm -rf *.o *.ko *.mod.c Module.symvers *.mod.gcno modules.order \
-		*.so .*.cmd .tmp*
+	rm -rf *.o *.ko *.mod.c Module.symvers *.mod.gcno modules.order \
+		*.so .*.cmd .tmp* .cache.mk
 
-install: uninstall default 
-	if [ -d /usr/lib/xtables/ ] ; then \
+install: uninstall default
+	@if [ -d /usr/lib/xtables/ ] ; then \
 		cp -f libxt_TRAFSTAT.so /usr/lib/xtables/ ; fi
-	if [ -d /lib/xtables/ ] ; then \
+	@if [ -d /lib/xtables/ ] ; then \
 	    	cp -f libxt_TRAFSTAT.so /lib/xtables/ ; fi
-	if [ -d /usr/lib/x86_64-linux-gnu/xtables/ ] ; then \
+	@if [ -d /usr/lib/x86_64-linux-gnu/xtables/ ] ; then \
 		cp -f libxt_TRAFSTAT.so /usr/lib/x86_64-linux-gnu/xtables/ ; fi
-	cp -f xt_TRAFSTAT.ko \
+	@cp -f xt_TRAFSTAT.ko \
 		/lib/modules/$(shell uname -r)/kernel/net/netfilter/
-	if ( ! modinfo xt_TRAFSTAT &> /dev/null ) ; then \
+	@if ( ! modinfo xt_TRAFSTAT &> /dev/null ) ; then \
 		depmod -a ; fi
 
-uninstall: clean 
-	@rmmod xt_TRAFSTAT &> /dev/null
+uninstall: clean
+	-@rmmod xt_TRAFSTAT &> /dev/null
 	@rm -f /usr/lib/xtables/libxt_TRAFSTAT.so &> /dev/null
 	@rm -f /lib/xtables/libxt_TRAFSTAT.so &> /dev/null
 	@rm -f /usr/lib/x86_64-linux-gnu/xtables/libxt_TRAFSTAT.so &> /dev/null
