@@ -710,7 +710,12 @@ static int trafstat_seq_open(struct inode *inode, struct file *file)
         th = s->private;
         th->tt = tt;
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,17,0)
         pr_info("local net: %s; passed/lost packets: %llu/%llu, cpu: %u\n",
+
+#else
+        pr_info("local net: %s; passed/lost packets: %lu/%lu, cpu: %u\n",
+#endif
 	                tt->config_net, atomic64_read(&tt->packets_pass), 
                         atomic64_read(&tt->packets_lost), 
                         raw_smp_processor_id());
