@@ -710,7 +710,7 @@ static int trafstat_seq_open(struct inode *inode, struct file *file)
         th = s->private;
         th->tt = tt;
 
-        pr_info("local net: %s; passed/lost packets: %lu/%lu, cpu: %u\n",
+        pr_info("local net: %s; passed/lost packets: %llu/%llu, cpu: %u\n",
 	                tt->config_net, atomic64_read(&tt->packets_pass), 
                         atomic64_read(&tt->packets_lost), 
                         raw_smp_processor_id());
