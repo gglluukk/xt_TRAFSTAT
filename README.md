@@ -284,10 +284,9 @@ xt_TRAFSTAT creates special `/proc/trafstat/` entry with filename related to IP-
 File format is CSV (Comma-Separated Values) ready to be injected into database in form, example:
 
 ```
-0,17,3232235891,3232235777,123,0,6,7,351,660,0
+17,3232235891,3232235777,123,0,6,7,351,660,0
 
 where:
-0             - id always 0, for AUTOINCREMENT PRIMARY KEY compatibility
 17            - protocol id
 3232235891    - local IP-address
 3232235777    - remote IP-address

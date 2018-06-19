@@ -606,7 +606,7 @@ static int trafstat_seq_show(struct seq_file *seq, void *v)
         if (add_spoofed(tt, ts))
                 return 0;
 
-        seq_printf(seq, "0,%u,%u,%u,%u,%u,%u,%u,%llu,%llu,%u\n",
+        seq_printf(seq, "%u,%u,%u,%u,%u,%u,%u,%llu,%llu,%u\n",
                 ts->traf.protocol, ntohl(ts->traf.local_addr),
                 ntohl(ts->traf.remote_addr), ntohs(ts->traf.local_port),
                 ntohs(ts->traf.remote_port), ts->stat.local_pkt,
@@ -960,4 +960,4 @@ MODULE_AUTHOR("gglluukk");
 MODULE_DESCRIPTION("Xtables: traffic statistics");
 MODULE_ALIAS("xt_TRAFSTAT");
 MODULE_ALIAS("ipt_TRAFSTAT");
-MODULE_VERSION("0.22");
+MODULE_VERSION("0.23");
