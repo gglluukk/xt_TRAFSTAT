@@ -18,6 +18,9 @@
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(4,11,0)
 #include <linux/sched/types.h>
 #endif
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,5,0)
+#include <uapi/linux/sched/types.h>
+#endif
 #include "xt_TRAFSTAT.h"
 
 #define TRAFSTAT_PROC	    "trafstat"
@@ -676,7 +679,8 @@ static int trafstat_seq_open(struct inode *inode, struct file *file)
         if (ret < 0) {
                 pr_err("error in kstrtou32\n");
                 goto err2;
-        }*/
+        }
+        */
 
         tt = tt_by_config_net(config_net);
         if (!tt) {
@@ -684,12 +688,13 @@ static int trafstat_seq_open(struct inode *inode, struct file *file)
                     config_net);
                 goto err2;
         }
-
+        
         if (tt->dump_prio) {
-                struct sched_param param = { .sched_priority = tt->dump_prio };
+                struct sched_param param = { .sched_priority = MAX_RT_PRIO / 2 };
+                //struct sched_param param = { .sched_priority = tt->dump_prio };
                 sched_setscheduler(current, SCHED_RR, &param);
         }
-
+        
         if (!mutex_trylock(&tt->proc_lock)) {
                 pr_err("local net: %s, proc file is busy\n", config_net);
                 goto err2;

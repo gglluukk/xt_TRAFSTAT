@@ -13,7 +13,7 @@ default:
                        libxt_TRAFSTAT.c
 
 clean:
-	rm -rf *.o *.ko *.mod.c Module.symvers *.mod.gcno modules.order \
+	rm -rf *.o *.ko *.mod *.mod.c Module.symvers *.mod.gcno modules.order \
 		*.so .*.cmd .tmp* .cache.mk
 
 install: uninstall default
