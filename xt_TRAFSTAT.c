@@ -18,7 +18,7 @@
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(4,11,0)
 #include <linux/sched/types.h>
 #endif
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,5,0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,4,0)
 #include <uapi/linux/sched/types.h>
 #endif
 #include "xt_TRAFSTAT.h"
@@ -970,4 +970,4 @@ MODULE_AUTHOR("gglluukk");
 MODULE_DESCRIPTION("Xtables: traffic statistics");
 MODULE_ALIAS("xt_TRAFSTAT");
 MODULE_ALIAS("ipt_TRAFSTAT");
-MODULE_VERSION("0.23");
+MODULE_VERSION("0.24");
