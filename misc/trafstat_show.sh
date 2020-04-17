@@ -1,7 +1,7 @@
 #!/bin/bash
 #    FORMAT(COUNT(DISTINCT(t.local_ip + t.remote_ip)), 0) AS IPs, 
 
-SQLEXEC='mysql --defaults-file=/root/.my.cnf --database=trafstat -e '
+SQLEXEC='mysql --defaults-file=~/.my.cnf --database=trafstat -e '
 
 if [ ! $1 ] ; then
     count=0
