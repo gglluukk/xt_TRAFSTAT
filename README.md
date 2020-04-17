@@ -160,26 +160,24 @@ echo "Host IP-address: $HOST_IP"
 - **set TCP-ports being listened:**
 
 ```
-TCP_PORTS=`netstat -apn --inet | \
-grep LIST | grep ^tcp | grep '0.0.0.0:[0-9]' | \
-awk '{ print $4; }' | sed -e 's|0.0.0.0:||' | \
-sort -n | tr '\n' ',' | sed -e 's|,$||'`
+TCP_PORTS=`netstat -apn --inet | grep -v 127.0.0.1 | \
+grep -v ESTABLISHED | grep ^tcp | awk '{ print $4; }' | \
+sed -e 's|[0-9]*.[0-9]*.[0-9]*.[0-9]*:||' | \
+sort -n | uniq | tr '\n' ',' | sed -e 's|,$||'`
 
-if ! echo $TCP_PORTS | grep [0-9] ; then \
-TCP_PORTS="none" ; fi
+if ! echo $TCP_PORTS | grep [0-9] ; then TCP_PORTS="none" ; fi
 
 ```
 
 - **set UDP-ports being listened:**
 
 ```
-UDP_PORTS=`netstat -apn --inet | \
-grep LIST | grep ^udp | grep '0.0.0.0:[0-9]' | \
-awk '{ print $4; }' | sed -e 's|0.0.0.0:||' | \
-sort -n | tr '\n' ',' | sed -e 's|,$||'`
+UDP_PORTS=`netstat -apn --inet | grep -v 127.0.0.1 | \
+grep -v ESTABLISHED | grep ^udp | awk '{ print $4; }' | \
+sed -e 's|[0-9]*.[0-9]*.[0-9]*.[0-9]*:||' | \
+sort -n | uniq | tr '\n' ',' | sed -e 's|,$||'`
 
-if ! echo $UDP_PORTS | grep [0-9] ; then \
-UDP_PORTS="none" ; fi
+if ! echo $UDP_PORTS | grep [0-9] ; then UDP_PORTS="none" ; fi
 ```
 
 ### set iptables' xt_TRAFSTAT rules
