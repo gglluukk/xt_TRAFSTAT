@@ -743,13 +743,22 @@ err1:
         return -EPERM;
 }
 
-static const struct file_operations trafstat_file_ops = {
-	.owner   = THIS_MODULE,
-	.open    = trafstat_seq_open,
-	.read    = seq_read,
-	.llseek  = seq_lseek,
-	.release = seq_release_private,
+#if LINUX_VERSION_CODE > KERNEL_VERSION(5,4,0)
+static const struct proc_ops trafstat_file_ops = {
+	.proc_open      = trafstat_seq_open,
+	.proc_read      = seq_read,
+	.proc_lseek     = seq_lseek,
+	.proc_release   = seq_release_private,
 };
+#else
+static const struct file_operations trafstat_file_ops = {
+       .owner   = THIS_MODULE,
+       .open    = trafstat_seq_open,
+       .read    = seq_read,
+       .llseek  = seq_lseek,
+       .release = seq_release_private,
+};
+#endif
 
 static int build_ports(struct rb_root *rb_ports, __u8 direction, __u8 protocol,
 			const __u16 ports[XT_TRAFSTAT_PORTS])
@@ -970,4 +979,4 @@ MODULE_AUTHOR("gglluukk");
 MODULE_DESCRIPTION("Xtables: traffic statistics");
 MODULE_ALIAS("xt_TRAFSTAT");
 MODULE_ALIAS("ipt_TRAFSTAT");
-MODULE_VERSION("0.24");
+MODULE_VERSION("0.25");
