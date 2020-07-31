@@ -743,7 +743,7 @@ err1:
         return -EPERM;
 }
 
-#if LINUX_VERSION_CODE > KERNEL_VERSION(5,4,0)
+#if LINUX_VERSION_CODE > KERNEL_VERSION(5,5,0)
 static const struct proc_ops trafstat_file_ops = {
 	.proc_open      = trafstat_seq_open,
 	.proc_read      = seq_read,
@@ -979,4 +979,4 @@ MODULE_AUTHOR("gglluukk");
 MODULE_DESCRIPTION("Xtables: traffic statistics");
 MODULE_ALIAS("xt_TRAFSTAT");
 MODULE_ALIAS("ipt_TRAFSTAT");
-MODULE_VERSION("0.25");
+MODULE_VERSION("0.26");
