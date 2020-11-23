@@ -10,6 +10,7 @@
 #include <linux/seq_file.h>
 #include <linux/mutex.h>
 #include <linux/wait.h>
+#include <linux/sched.h>
 #include <linux/swap.h>
 #include <linux/netfilter/x_tables.h>
 #include <linux/proc_fs.h>
@@ -690,9 +691,14 @@ static int trafstat_seq_open(struct inode *inode, struct file *file)
         }
         
         if (tt->dump_prio) {
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,9,0)
+                sched_set_fifo(current);
+#else
+
                 struct sched_param param = { .sched_priority = MAX_RT_PRIO / 2 };
                 //struct sched_param param = { .sched_priority = tt->dump_prio };
                 sched_setscheduler(current, SCHED_RR, &param);
+#endif
         }
         
         if (!mutex_trylock(&tt->proc_lock)) {
@@ -979,4 +985,4 @@ MODULE_AUTHOR("gglluukk");
 MODULE_DESCRIPTION("Xtables: traffic statistics");
 MODULE_ALIAS("xt_TRAFSTAT");
 MODULE_ALIAS("ipt_TRAFSTAT");
-MODULE_VERSION("0.26");
+MODULE_VERSION("0.27");
