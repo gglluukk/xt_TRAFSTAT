@@ -19,7 +19,7 @@ echo iptables-persistent iptables-persistent/autosave_v6 boolean true | \
     debconf-set-selections
 
 apt-get --yes install linux-headers-`uname -r` \
-    iptables-dev iptables-persistent net-tools
+    iptables-dev iptables-persistent net-tools cron
 ```
 
 ### get, build and install xt_TRAFSTAT 
@@ -49,9 +49,9 @@ make install
 ## configure
 
 
-### install and configure mysql as data storage 
+### install and configure mariadb as data storage 
 
-- **set mysql password and preconfigure package:**
+- **set mariadb password and preconfigure package:**
 
 ```
 MYSQL_ROOT_PASSWORD="super-pass"
@@ -62,16 +62,16 @@ debconf-set-selections <<< \
 
 ```
 
-- **install mysql with presets:**
+- **install mariadb with presets:**
 
 ```
-apt-get --yes install mysql-server
+apt-get --yes install mariadb-server
 ```
 
 - **add to autostart:**
 
 ```
-systemctl enable mysql
+systemctl enable mariadb
 
 ```
 
@@ -87,7 +87,7 @@ EOF
 - **apply changes:**
 
 ```
-service mysql restart
+service mariadb restart
 ```
 
 - **create client config needed by scripts:**
