@@ -7,6 +7,7 @@
 #include <xtables.h>
 #include <linux/types.h>
 #include <linux/netfilter_ipv4/ip_tables.h>
+#include <linux/version.h>
 #include "xt_TRAFSTAT.h"
 
 enum {
@@ -401,7 +402,14 @@ static struct xtables_target trafstat_tg_reg = {
         .init           = TRAFSTAT_init,
 };
 
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(6, 0, 0))
+static __attribute__((constructor)) void echo_tg_ldr(void) {
+        xtables_register_target(&trafstat_tg_reg);
+}
+
+#else
 void _init(void)
 {
         xtables_register_target(&trafstat_tg_reg);
 }
+#endif
