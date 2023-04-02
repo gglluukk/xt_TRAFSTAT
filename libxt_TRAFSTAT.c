@@ -402,7 +402,7 @@ static struct xtables_target trafstat_tg_reg = {
         .init           = TRAFSTAT_init,
 };
 
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(6, 0, 0))
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 10, 0))
 static __attribute__((constructor)) void echo_tg_ldr(void) {
         xtables_register_target(&trafstat_tg_reg);
 }
@@ -413,3 +413,4 @@ void _init(void)
         xtables_register_target(&trafstat_tg_reg);
 }
 #endif
+
