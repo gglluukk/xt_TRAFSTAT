@@ -19,7 +19,7 @@ echo iptables-persistent iptables-persistent/autosave_v6 boolean true | \
     debconf-set-selections
 
 apt --yes install build-essential linux-headers-`uname -r` \
-    iptables-dev iptables-persistent net-tools cron
+    libxtables-dev iptables-persistent net-tools cron
 ```
 
 ### get, build and install xt_TRAFSTAT 
