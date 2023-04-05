@@ -58,7 +58,7 @@ debconf-set-selections <<< \
 - **install mariadb with presets:**
 
 ```
-apt-get --yes install mariadb-server
+apt --yes install mariadb-server
 ```
 
 - **add to autostart:**
