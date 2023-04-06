@@ -31,17 +31,10 @@ apt-get --yes install build-essential linux-headers-`uname -r` \
 git clone https://gitlab.com/gluker/xt_TRAFSTAT.git
 ```
 
-- **unpack sources:**
-
-```
-tar xzvf xt_TRAFSTAT-master.tar.gz 
-
-```
-
 - **compile kernel module and netfilter shared library:**
 
 ```
-cd xt_TRAFSTAT-master
+cd xt_TRAFSTAT
 make install
 ```
 
