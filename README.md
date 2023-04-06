@@ -28,7 +28,7 @@ apt-get --yes install build-essential linux-headers-`uname -r` \
 - **download xt_TRAFSTAT:**
 
 ```
-wget http://gitlab.fbsvc.bz/gluker/xt_TRAFSTAT/-/archive/master/xt_TRAFSTAT-master.tar.gz
+git clone https://gitlab.com/gluker/xt_TRAFSTAT.git
 ```
 
 - **unpack sources:**
