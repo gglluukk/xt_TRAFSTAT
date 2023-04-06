@@ -161,7 +161,7 @@ echo "Host IP-address: $HOST_IP"
 
 ```
 TCP_PORTS=`netstat -apn --inet | grep -v 127.0.0.1 | \
-grep -v ESTABLISHED | grep ^tcp | awk '{ print $4; }' | \
+grep LISTEN | grep ^tcp | awk '{ print $4; }' | \
 sed -e 's|[0-9]*.[0-9]*.[0-9]*.[0-9]*:||' | \
 sort -n | uniq | tr '\n' ',' | sed -e 's|,$||'`
 
