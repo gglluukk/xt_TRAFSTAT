@@ -18,7 +18,7 @@ echo iptables-persistent iptables-persistent/autosave_v4 boolean true | \
 echo iptables-persistent iptables-persistent/autosave_v6 boolean true | \
     debconf-set-selections
 
-apt-get --yes install build-essential linux-headers-`uname -r` \
+apt --yes install build-essential linux-headers-`uname -r` \
     iptables-dev iptables-persistent net-tools cron
 ```
 
