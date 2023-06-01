@@ -9,6 +9,7 @@ build-job:
     - apt -y upgrade
     - apt search 5.4.0-109-generic
     - apt --yes install build-essential linux-buildinfo-5.4.0-109-generic linux-headers-5.4.0-109-generic 
+    - ln -s /lib/modules/5.4.0-109-generic /lib/modules/5.4.109+
     - ls -la /lib/modules/
     - make
     - make install
