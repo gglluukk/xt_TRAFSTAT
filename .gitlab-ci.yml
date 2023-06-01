@@ -5,7 +5,7 @@ build-job:
   stage: build
   image: ubuntu:latest
   script:
-    - sudo apt --yes install build-essential linux-headers-`uname -r` libxtables-dev
+    - apt --yes install build-essential linux-headers-`uname -r` libxtables-dev
     - make
     - sudo make install
     - sudo iptables -I INPUT -p icmp -s 127.0.0.1 -j TRAFSTAT --local-net 127.0.0.1
