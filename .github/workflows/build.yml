@@ -1,0 +1,28 @@
+name: build
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: setup
+      run: sudo apt --yes install build-essential linux-headers-`uname -r` libxtables-dev
+    - name: make
+      run: make
+    - name: make install
+      run: sudo make install
+    - name: enable iptables
+      run: sudo iptables -I INPUT -p icmp -s 127.0.0.1 -j TRAFSTAT --local-net 127.0.0.1
+    - name: ping 
+      run: ping -c 1 127.0.0.1
+    - name: result
+      run: cat /proc/trafstat/127.0.0.1_32 | grep 1,2130706433,2130706433,0,0,2,0,168,0,0 
+ 
