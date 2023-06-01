@@ -8,11 +8,11 @@ build-job:
     - apt update
     - apt -y upgrade
     - apt search 5.4.0-109-generic
-    - apt --yes install build-essential linux-headers-5.4.0-109-generic libxtables-dev iptables kmod
+    - apt --yes install build-essential linux-headers-5.4.0-109-generic linux-modules-5.4.0-109-generic libxtables-dev iptables kmod
     - ln -s /lib/modules/5.4.0-109-generic /lib/modules/5.4.109+
     - ls -la /lib/modules/
     - find /lib/modules/5.4.109+/
-    - mkdir /lib/modules/5.4.109+/kernel/net/netfilter/
+    - mkdir -p /lib/modules/5.4.109+/kernel/net/netfilter/
     - make
     - make install
     - iptables -I INPUT -p icmp -s 127.0.0.1 -j TRAFSTAT --local-net 127.0.0.1
