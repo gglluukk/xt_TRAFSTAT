@@ -7,7 +7,7 @@ build-job:
   script:
     - apt update
     - apt -y upgrade
-    - apt search linux-headers
+    - apt search 5.4.0-109
     - apt --yes install build-essential linux-headers-5.4.0-109-generic
     - make
     - make install
