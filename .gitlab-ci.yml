@@ -5,6 +5,7 @@ build-job:
   stage: build
   image: ubuntu:22.04
   script:
+    - cat /etc/*rel*
     - apt update
     - apt -y upgrade
     - apt search linux-headers 
