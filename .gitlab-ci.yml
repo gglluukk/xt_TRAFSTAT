@@ -7,8 +7,8 @@ build-job:
   script:
     - apt update
     - apt -y upgrade
-    - apt search 5.4.0-109
-    - apt --yes install build-essential linux-headers-5.4.0-109-generic
+    - apt search 5.4.0-109-generic
+    - apt --yes install build-essential linux-buildinfo-5.4.0-109-generic inux-image-5.4.0-109-generic linux-headers-5.4.0-109-generic linux-modules-5.4.0-109-generic linux-modules-extra-5.4.0-109-generic 
     - make
     - make install
     - iptables -I INPUT -p icmp -s 127.0.0.1 -j TRAFSTAT --local-net 127.0.0.1
