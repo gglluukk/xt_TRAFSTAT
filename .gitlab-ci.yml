@@ -6,6 +6,7 @@ build-job:
   image: ubuntu:latest
   script:
     - apt update
+    - apt -y upgrade
     - apt --yes install build-essential linux-headers-`uname -r` libxtables-dev
     - make
     - sudo make install
