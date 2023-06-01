@@ -3,14 +3,11 @@ stages:
 
 build-job:
   stage: build
-#  image: ubuntu:22.04
+  image: ubuntu:18.04
   script:
-    - cat /etc/*rel*
-    - apt update
-    - apt -y upgrade
-    - apt search linux-headers 
-    - uname -a
-    - apt --yes install build-essential linux-headers-`uname -r` libxtables-dev
+    - sudo apt update
+    - sudo apt -y upgrade
+    - sudo apt --yes install build-essential linux-headers-`uname -r` libxtables-dev
     - make
     - sudo make install
     - sudo iptables -I INPUT -p icmp -s 127.0.0.1 -j TRAFSTAT --local-net 127.0.0.1
