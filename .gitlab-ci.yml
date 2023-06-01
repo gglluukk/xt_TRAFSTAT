@@ -1,0 +1,22 @@
+stages:
+  - prepare
+  - build
+  - test
+
+prepare-job:
+  stage: prepare
+  script:
+    - sudo apt --yes install build-essential linux-headers-`uname -r` libxtables-dev
+
+build-job:
+  stage: build
+  script:
+    - make
+    - make install
+
+test-job:
+  stage: test
+    - sudo iptables -I INPUT -p icmp -s 127.0.0.1 -j TRAFSTAT --local-net 127.0.0.1
+    - ping -c 1 127.0.0.1
+    - cat /proc/trafstat/127.0.0.1_32 | grep 1,2130706433,2130706433,0,0,2,0,169,0,0 
+ 
