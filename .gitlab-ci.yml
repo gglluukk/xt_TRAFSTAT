@@ -14,6 +14,7 @@ build-job:
     - make
     - make install
     - find /lib/modules/5.4.109+/
+    - depmod -a
     - modprobe xt_TRAFSTAT
     - ifconfig -a
     - iptables -I INPUT -p icmp -s 127.0.0.1 -j TRAFSTAT --local-net 127.0.0.1
