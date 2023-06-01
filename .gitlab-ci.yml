@@ -3,7 +3,7 @@ stages:
 
 build-job:
   stage: build
-  image: ubuntu:22.04
+#  image: ubuntu:22.04
   script:
     - cat /etc/*rel*
     - apt update
