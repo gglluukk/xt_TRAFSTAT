@@ -5,11 +5,10 @@ build-job:
   stage: build
   image: ubuntu:latest
   script:
+    - apt update
     - apt --yes install build-essential linux-headers-`uname -r` libxtables-dev
     - make
     - sudo make install
     - sudo iptables -I INPUT -p icmp -s 127.0.0.1 -j TRAFSTAT --local-net 127.0.0.1
     - ping -c 1 127.0.0.1
     - cat /proc/trafstat/127.0.0.1_32 | grep 1,2130706433,2130706433,0,0,2,0,169,0,0 
-
- 
