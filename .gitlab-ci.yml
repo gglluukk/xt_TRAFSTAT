@@ -3,7 +3,7 @@ stages:
 
 build-job:
   stage: build
-  image: ubuntu:latest
+  image: ubuntu:22.04
   script:
     - apt update
     - apt -y upgrade
