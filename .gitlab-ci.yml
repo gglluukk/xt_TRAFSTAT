@@ -7,13 +7,13 @@ build-job:
   script:
     - apt update
     - apt -y upgrade
-    - apt search 5.4.0-109-generic
+#    - apt search 5.4.0-109-generic
     - apt --yes install build-essential linux-headers-5.4.0-109-generic linux-modules-5.4.0-109-generic libxtables-dev iptables kmod
     - ln -s /lib/modules/5.4.0-109-generic /lib/modules/5.4.109+
     - mkdir -p /lib/modules/5.4.109+/kernel/net/netfilter/
     - make
     - make install
-    - find /lib/modules/5.4.109+/
+ #   - find /lib/modules/5.4.109+/
     - depmod -a
     - modprobe xt_TRAFSTAT
     - ifconfig -a
