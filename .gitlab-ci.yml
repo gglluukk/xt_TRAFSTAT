@@ -7,6 +7,7 @@ build-job:
   script:
     - apt update
     - apt -y upgrade
+    - apt search linux-headers 
     - uname -a
     - apt --yes install build-essential linux-headers-`uname -r` libxtables-dev
     - make
