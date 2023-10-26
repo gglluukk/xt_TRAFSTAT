@@ -171,7 +171,7 @@ static void ports_free(struct rb_root *root)
 	struct rb_node *node;
 	traf_ports *tp;
 
-	for (node = rb_first(root); node; node = rb_next(node)) {
+	while ((node = rb_first(root))) {
 		tp = rb_entry(node, traf_ports, node);
 		rb_erase(&tp->node, root);
 		kfree(tp);
@@ -248,7 +248,7 @@ static void storage_free(struct traf_thread *tt, struct rb_root *root)
 	struct rb_node *node;
 	traf_stat *ts;
 
-	for (node = rb_first(root); node; node = rb_next(node)) {
+	while ((node = rb_first(root))) {
 		ts = rb_entry(node, traf_stat, node);
 		rb_erase(&ts->node, root);
 		kmem_cache_free(tt->traf_cache, ts);
@@ -985,4 +985,4 @@ MODULE_AUTHOR("gglluukk");
 MODULE_DESCRIPTION("Xtables: traffic statistics");
 MODULE_ALIAS("xt_TRAFSTAT");
 MODULE_ALIAS("ipt_TRAFSTAT");
-MODULE_VERSION("0.30");
+MODULE_VERSION("0.31");
