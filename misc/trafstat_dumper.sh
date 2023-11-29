@@ -33,6 +33,8 @@ CREATE TABLE IF NOT EXISTS trafstat_${1} (
 
 for i in /proc/trafstat/* ; do
     file=`basename $i`
+    if [ $file == "*" ] ; then exit 0 ; fi
+
     table=`echo $file | tr '.' '_'`
     
     create_table $table
