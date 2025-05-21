@@ -35,7 +35,10 @@ git clone https://gitlab.com/gluker/xt_TRAFSTAT.git
 
 ```
 cd xt_TRAFSTAT
+# for current kernel
 make install
+# for specified kernel
+make install KERNEL_VERSION=
 ```
 
 
