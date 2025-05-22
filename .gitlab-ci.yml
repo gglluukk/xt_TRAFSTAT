@@ -1,23 +1,35 @@
+image: ubuntu:22.04
+
 stages:
   - build
 
-build-job:
+variables:
+  DEBIAN_FRONTEND: noninteractive
+
+before_script:
+  - apt update
+  - apt -y install build-essential libxtables-dev iptables iputils-ping kmod
+  - apt -y install linux-headers-5.15.0-1089-azure
+  - apt -y install linux-headers-6.1.0-1036-oem
+  - apt -y install linux-headers-6.5.0-1027-oem
+  - apt -y install linux-headers-6.8.0-1030-gcp
+  - apt -y install gcc-11 gcc-12
+
+build:
   stage: build
-  image: ubuntu:18.04
   script:
-    - apt update
-    - apt -y upgrade
-#    - apt search 5.4.0-109-generic
-#    - apt --yes install build-essential linux-headers-5.4.0-109-generic libxtables-dev iptables kmod
-    - apt --yes install build-essential linux-headers-5.4.0-109-generic libxtables-dev
-    - ln -s /lib/modules/5.4.0-109-generic /lib/modules/5.4.109+
-#    - mkdir -p /lib/modules/5.4.109+/kernel/net/netfilter/
-    - make
-#    - make install
-#    - find /lib/modules/5.4.109+/
-#    - depmod -a
-#    - modprobe xt_TRAFSTAT
-#    - ifconfig -a
-#    - iptables -I INPUT -p icmp -s 127.0.0.1 -j TRAFSTAT --local-net 127.0.0.1
-#    - ping -c 1 127.0.0.1
-#    - cat /proc/trafstat/127.0.0.1_32 | grep 1,2130706433,2130706433,0,0,2,0,169,0,0 
+    - make KERNEL_VERSION=5.15.0-1089-azure
+    - modinfo xt_TRAFSTAT.ko
+    - make clean
+
+    - make KERNEL_VERSION=6.1.0-1036-oem
+    - modinfo xt_TRAFSTAT.ko
+    - make clean
+
+    - make KERNEL_VERSION=6.5.0-1027-oem
+    - modinfo xt_TRAFSTAT.ko
+    - make clean
+
+    - make KERNEL_VERSION=6.8.0-1030-gcp
+    - modinfo xt_TRAFSTAT.ko
+    - make clean
